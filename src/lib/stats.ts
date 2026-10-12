@@ -24,6 +24,7 @@ export function applyDailyResult(stats: StatsState, result: RoundResult): StatsS
     currentStreak = 1; // first game, or a gap broke the streak
   }
 
+  const times = stats.times ?? [];
   return {
     gamesPlayed: stats.gamesPlayed + 1,
     wins: stats.wins + (isWin(result.hits) ? 1 : 0),
@@ -31,6 +32,7 @@ export function applyDailyResult(stats: StatsState, result: RoundResult): StatsS
     maxStreak: Math.max(stats.maxStreak, currentStreak),
     lastDailyIndex: index,
     scores: [...stats.scores, result.total],
+    times: result.durationMs != null ? [...times, result.durationMs] : times,
   };
 }
 
@@ -41,6 +43,10 @@ export interface DerivedStats {
   maxStreak: number;
   average: number; // 0..1000
   best: number;
+  /** Fastest solve time in ms, or null if none recorded. */
+  bestTimeMs: number | null;
+  /** Average solve time in ms, or null if none recorded. */
+  avgTimeMs: number | null;
   /** Histogram of personal scores; buckets[i] covers [i*200, i*200+200). */
   distribution: number[];
 }
@@ -52,6 +58,8 @@ export function deriveStats(stats: StatsState): DerivedStats {
     distribution[i]++;
   }
   const total = stats.scores.reduce((a, b) => a + b, 0);
+  const times = stats.times ?? [];
+  const timeTotal = times.reduce((a, b) => a + b, 0);
   return {
     gamesPlayed: stats.gamesPlayed,
     winRate: stats.gamesPlayed ? Math.round((stats.wins / stats.gamesPlayed) * 100) : 0,
@@ -59,6 +67,8 @@ export function deriveStats(stats: StatsState): DerivedStats {
     maxStreak: stats.maxStreak,
     average: stats.scores.length ? Math.round(total / stats.scores.length) : 0,
     best: stats.scores.length ? Math.max(...stats.scores) : 0,
+    bestTimeMs: times.length ? Math.min(...times) : null,
+    avgTimeMs: times.length ? Math.round(timeTotal / times.length) : null,
     distribution,
   };
 }

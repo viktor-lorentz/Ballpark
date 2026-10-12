@@ -110,3 +110,11 @@ export function formatValue(value: number, unit: string): string {
   if (unit === "%") return `${n}%`;
   return `${n} ${unit}`;
 }
+
+/** Milliseconds as m:ss, e.g. 108000 -> "1:48". */
+export function formatDuration(ms: number): string {
+  const totalSec = Math.max(0, Math.round(ms / 1000));
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}

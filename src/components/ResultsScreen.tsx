@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { formatCountdown } from "../lib/daily";
+import { formatDuration } from "../lib/format";
+import * as haptics from "../lib/haptics";
 import {
   bucketOf,
   getRanking,
@@ -11,8 +13,9 @@ import { isWin, tierOf, type Tier } from "../lib/scoring";
 import { buildShareText, copyToClipboard } from "../lib/share";
 import type { Ranking, RoundResult } from "../lib/types";
 import AnimatedNumber from "./AnimatedNumber";
+import Confetti from "./Confetti";
 import DistributionChart from "./DistributionChart";
-import { ChartIcon, ChevronLeftIcon, ShareIcon } from "./icons";
+import { ChartIcon, ChevronLeftIcon, ClockIcon, ShareIcon } from "./icons";
 
 const EMOJI: Record<Tier, string> = {
   pinpoint: "🎯",
@@ -46,6 +49,7 @@ export default function ResultsScreen({
   onToast,
 }: Props) {
   const [ranking, setRanking] = useState<Ranking | null>(null);
+  const [celebrate, setCelebrate] = useState(false);
   const { isArchive, total, hits } = result;
 
   useEffect(() => {
@@ -58,6 +62,15 @@ export default function ResultsScreen({
       cancelled = true;
     };
   }, [isArchive, result.puzzleId, total, hits]);
+
+  // A little party on a winning round.
+  useEffect(() => {
+    if (!isWin(hits)) return;
+    setCelebrate(true);
+    haptics.celebrate();
+    const t = setTimeout(() => setCelebrate(false), 2600);
+    return () => clearTimeout(t);
+  }, [hits]);
 
   const share = async () => {
     const text = buildShareText(result, window.location.origin);
@@ -72,6 +85,8 @@ export default function ResultsScreen({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
+      {celebrate && <Confetti />}
+
       {/* hero */}
       <div className="card overflow-hidden p-6 text-center">
         <div className="flex items-center justify-center gap-2">
@@ -100,6 +115,14 @@ export default function ResultsScreen({
             <span className="text-muted">· keep going</span>
           )}
         </p>
+        {result.durationMs != null && (
+          <p className="mt-1 flex items-center justify-center gap-1 text-xs text-muted">
+            <ClockIcon width={13} height={13} /> Solved in{" "}
+            <span className="font-semibold text-text nums">
+              {formatDuration(result.durationMs)}
+            </span>
+          </p>
+        )}
 
         {/* per-question tiles */}
         <div className="mt-5 grid grid-cols-5 gap-2">

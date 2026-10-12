@@ -189,7 +189,11 @@ export default function LogRangeSlider({
                 onKeyDown={onKey(thumb)}
                 className={`absolute top-1/2 z-20 h-6 w-6 -translate-x-1/2 -translate-y-1/2
                   rounded-full border-2 border-accent bg-surface shadow-card
-                  ${disabled ? "cursor-default" : "cursor-grab touch-none active:cursor-grabbing"}
+                  ${
+                    disabled
+                      ? "cursor-default"
+                      : "cursor-grab touch-none active:cursor-grabbing before:absolute before:-inset-3 before:rounded-full before:content-['']"
+                  }
                   ${active === thumb ? "scale-110 ring-4 ring-accent/25" : ""}
                   transition-[transform,box-shadow]`}
                 style={{ left: `${frac * 100}%` }}

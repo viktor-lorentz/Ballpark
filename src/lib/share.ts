@@ -1,3 +1,4 @@
+import { formatDuration } from "./format";
 import { tierOf, type Tier } from "./scoring";
 import type { RoundResult } from "./types";
 
@@ -17,12 +18,9 @@ export function buildShareText(result: RoundResult, siteUrl: string): string {
   const header = result.isArchive
     ? `Ballpark #${result.puzzleId} (archive)`
     : `Ballpark #${result.puzzleId}`;
-  return [
-    header,
-    `${result.total}/1000 · ${result.hits}/5 boxed`,
-    grid,
-    siteUrl,
-  ].join("\n");
+  let stats = `${result.total}/1000 · ${result.hits}/5 boxed`;
+  if (result.durationMs != null) stats += ` · ⏱ ${formatDuration(result.durationMs)}`;
+  return [header, stats, grid, siteUrl].join("\n");
 }
 
 /** Copy text to the clipboard, falling back to a hidden textarea + execCommand. */

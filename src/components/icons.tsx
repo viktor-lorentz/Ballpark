@@ -101,3 +101,10 @@ export const LockIcon = (p: P) => (
     <path d="M8 11V7a4 4 0 0 1 8 0v4" />
   </svg>
 );
+
+export const ClockIcon = (p: P) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </svg>
+);

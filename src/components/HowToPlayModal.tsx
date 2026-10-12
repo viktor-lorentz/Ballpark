@@ -63,8 +63,10 @@ export default function HowToPlayModal({ open, onClose }: Props) {
       </ol>
 
       <p className="mt-5 rounded-xl bg-surface-2 px-4 py-3 text-xs leading-relaxed text-muted">
-        A fresh puzzle drops every day at <span className="font-semibold text-text">00:00 UTC</span>.
-        Build a streak, share your result, and dig through the archive for days you missed.
+        You get <span className="font-semibold text-text">30 seconds</span> a question — when
+        the clock runs out it locks your current box, so trust your gut. A fresh puzzle drops
+        every day at <span className="font-semibold text-text">00:00 UTC</span>. Build a streak,
+        share your result, and dig through the archive for days you missed.
       </p>
     </Modal>
   );

@@ -31,6 +31,7 @@ export const emptyStats: StatsState = {
   maxStreak: 0,
   lastDailyIndex: null,
   scores: [],
+  times: [],
 };
 
 export function loadStats(): StatsState {
@@ -69,4 +70,14 @@ export function hasSeenIntro(): boolean {
 
 export function markIntroSeen(): void {
   write(INTRO_KEY, true);
+}
+
+const FIRST_REVEAL_KEY = `${PREFIX}seenFirstReveal`;
+
+export function hasSeenFirstReveal(): boolean {
+  return read<boolean>(FIRST_REVEAL_KEY, false);
+}
+
+export function markFirstRevealSeen(): void {
+  write(FIRST_REVEAL_KEY, true);
 }

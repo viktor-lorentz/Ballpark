@@ -1,7 +1,8 @@
+import { formatDuration } from "../lib/format";
 import { bucketLabel, deriveStats, DIST_BUCKETS } from "../lib/stats";
 import type { StatsState } from "../lib/types";
 import DistributionChart from "./DistributionChart";
-import { FlameIcon } from "./icons";
+import { ClockIcon, FlameIcon } from "./icons";
 import Modal from "./Modal";
 
 interface Props {
@@ -59,6 +60,26 @@ export default function StatsModal({ open, onClose, stats, highlightScore }: Pro
                 : "Play today to start a new streak."}
             </p>
           </div>
+
+          {d.bestTimeMs != null && (
+            <div className="mt-2 flex items-center gap-2 text-sm text-muted">
+              <ClockIcon width={16} height={16} className="text-accent" />
+              <p>
+                Fastest solve{" "}
+                <span className="font-semibold text-text nums">
+                  {formatDuration(d.bestTimeMs)}
+                </span>
+                {d.avgTimeMs != null && (
+                  <>
+                    {" · avg "}
+                    <span className="font-semibold text-text nums">
+                      {formatDuration(d.avgTimeMs)}
+                    </span>
+                  </>
+                )}
+              </p>
+            </div>
+          )}
 
           <div className="mt-6">
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">

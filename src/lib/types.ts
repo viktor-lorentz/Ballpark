@@ -60,6 +60,8 @@ export interface RoundResult {
   results: QuestionResult[];
   isArchive: boolean;
   completedAt: number;
+  /** Total time spent answering, in ms (sum of per-question answering time). */
+  durationMs?: number;
 }
 
 /** Persisted lifetime statistics (daily games only). */
@@ -72,6 +74,8 @@ export interface StatsState {
   lastDailyIndex: number | null;
   /** Every daily total, oldest first. Powers the distribution + average. */
   scores: number[];
+  /** Solve time (ms) for each daily game, for best/average time. */
+  times: number[];
 }
 
 /** Today's aggregate ranking, either from the backend or the offline estimate. */

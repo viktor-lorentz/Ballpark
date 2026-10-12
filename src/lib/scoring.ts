@@ -64,7 +64,12 @@ export function isWin(hits: number): boolean {
 export function scoreRound(
   guesses: Guess[],
   facts: Fact[],
-  meta: { puzzleId: number; dateISO: string; isArchive: boolean },
+  meta: {
+    puzzleId: number;
+    dateISO: string;
+    isArchive: boolean;
+    durationMs?: number;
+  },
 ): RoundResult {
   const results = facts.map((fact, i) => scoreQuestion(guesses[i], fact));
   const total = results.reduce((sum, r) => sum + r.points, 0);
@@ -77,5 +82,6 @@ export function scoreRound(
     results,
     isArchive: meta.isArchive,
     completedAt: Date.now(),
+    durationMs: meta.durationMs,
   };
 }

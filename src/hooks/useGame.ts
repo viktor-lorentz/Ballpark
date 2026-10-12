@@ -1,7 +1,12 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { fracToValue } from "../lib/format";
 import { scoreQuestion, scoreRound } from "../lib/scoring";
 import type { DailyPuzzle, Fact, Guess, QuestionResult, RoundResult } from "../lib/types";
+
+/** Seconds a player gets per question before the clock auto-locks their box. */
+export const QUESTION_TIME_MS = 30_000;
+/** Cap any single question's recorded answering time (guards idle/untimed play). */
+const ANSWER_CAP_MS = 120_000;
 
 function defaultGuess(f: Fact): Guess {
   return {
@@ -19,6 +24,10 @@ export interface GameApi {
   setGuess: (low: number, high: number) => void;
   locked: boolean;
   currentResult: QuestionResult | null;
+  /** Points banked so far across all locked questions. */
+  runningScore: number;
+  /** Timestamp (ms) the current question's clock started, or null while revealed. */
+  startedAt: number | null;
   lockIn: () => void;
   next: () => void;
   result: RoundResult | null;
@@ -26,7 +35,8 @@ export interface GameApi {
 
 /**
  * Drives one round: five questions, one at a time, each locked and revealed
- * before moving on. Mount with a `key` tied to the puzzle so replays reset.
+ * before moving on. Tracks per-question answering time for the solve clock.
+ * Mount with a `key` tied to the puzzle so replays reset.
  */
 export function useGame(
   puzzle: DailyPuzzle,
@@ -42,6 +52,15 @@ export function useGame(
   const [phase, setPhase] = useState<"playing" | "results">("playing");
   const [result, setResult] = useState<RoundResult | null>(null);
 
+  // Timing.
+  const [startedAt, setStartedAt] = useState<number | null>(() => Date.now());
+  const [answerMs, setAnswerMs] = useState(0);
+
+  // Start (or restart) the clock whenever a fresh question becomes active.
+  useEffect(() => {
+    setStartedAt(Date.now());
+  }, [index]);
+
   const fact = facts[index];
   const guess = guesses[index];
   const isLocked = locked[index];
@@ -49,6 +68,15 @@ export function useGame(
   const currentResult = useMemo(
     () => (isLocked ? scoreQuestion(guess, fact) : null),
     [isLocked, guess, fact],
+  );
+
+  const runningScore = useMemo(
+    () =>
+      guesses.reduce(
+        (sum, g, i) => (locked[i] ? sum + scoreQuestion(g, facts[i]).points : sum),
+        0,
+      ),
+    [guesses, locked, facts],
   );
 
   const setGuess = useCallback(
@@ -64,13 +92,16 @@ export function useGame(
   );
 
   const lockIn = useCallback(() => {
+    if (locked[index]) return;
     setLocked((prev) => {
-      if (prev[index]) return prev;
       const next = prev.slice();
       next[index] = true;
       return next;
     });
-  }, [index]);
+    const spent = startedAt ? Math.min(ANSWER_CAP_MS, Date.now() - startedAt) : 0;
+    setAnswerMs((ms) => ms + spent);
+    setStartedAt(null); // pause the clock during the reveal
+  }, [index, locked, startedAt]);
 
   const next = useCallback(() => {
     if (index < total - 1) {
@@ -81,11 +112,12 @@ export function useGame(
       puzzleId: puzzle.id,
       dateISO: puzzle.dateISO,
       isArchive,
+      durationMs: answerMs,
     });
     setResult(round);
     setPhase("results");
     onComplete(round);
-  }, [facts, guesses, index, isArchive, onComplete, puzzle.dateISO, puzzle.id, total]);
+  }, [answerMs, facts, guesses, index, isArchive, onComplete, puzzle.dateISO, puzzle.id, total]);
 
   return {
     phase,
@@ -96,6 +128,8 @@ export function useGame(
     setGuess,
     locked: isLocked,
     currentResult,
+    runningScore,
+    startedAt,
     lockIn,
     next,
     result,
