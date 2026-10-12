@@ -41,6 +41,10 @@ moreish, and it spreads scores out nicely so the daily percentile actually means
 
 - 🎯 **One puzzle a day, the same for everyone** — a fresh set of five questions drops at
   **00:00 UTC**, with a live countdown to the next one.
+- ⏱️ **Beat the clock** — 30 seconds a question; the clock auto-locks your current box when
+  it runs out. Your solve time is tracked, shared, and raced against your personal best.
+- 🧮 **Live feedback that teaches the mechanic** — a running score, a "up to _N_ pts if it's
+  inside" preview that moves as you drag, and a little confetti + haptic payoff when you win.
 - 📊 **Real daily rankings** — submit your score anonymously and see *"you did better than
   X% of players today"* on a live histogram, powered by a tiny Cloudflare Worker + D1
   backend. No backend running? The game falls back to a built-in estimate and keeps working.
