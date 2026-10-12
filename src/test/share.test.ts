@@ -12,6 +12,7 @@ const base: RoundResult = {
   total: 510,
   hits: 3,
   isArchive: false,
+  completedAt: 0,
   results: [qr(180, true), qr(120, true), qr(50, true), qr(0, false), qr(160, true)],
 };
 
@@ -31,5 +32,12 @@ describe("buildShareText", () => {
 
   it("flags archive rounds", () => {
     expect(buildShareText({ ...base, isArchive: true }, "x")).toContain("#7 (archive)");
+  });
+
+  it("appends the solve time when present, and omits it when not", () => {
+    expect(buildShareText({ ...base, durationMs: 128000 }, "x")).toContain(
+      "510/1000 · 3/5 boxed · ⏱ 2:08",
+    );
+    expect(buildShareText(base, "x")).not.toContain("⏱");
   });
 });

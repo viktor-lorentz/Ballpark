@@ -112,6 +112,16 @@ describe("scoreRound", () => {
     expect(round.total).toBe(round.results[0].points + round.results[1].points);
     expect(round.results[1].points).toBe(0);
   });
+
+  it("carries the solve duration through", () => {
+    const round = scoreRound([{ low: 1945, high: 1955 }, { low: 800, high: 1200 }], facts, {
+      puzzleId: 1,
+      dateISO: "2026-10-01",
+      isArchive: false,
+      durationMs: 42_000,
+    });
+    expect(round.durationMs).toBe(42_000);
+  });
 });
 
 describe("isWin", () => {
