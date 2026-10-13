@@ -132,16 +132,20 @@ export default function LogRangeSlider({
   return (
     <div className="select-none px-1 pb-7 pt-10">
       <div className="relative">
-        {/* truth pin */}
+        {/* truth pin — the outer div owns the horizontal centering (-translate-x-1/2);
+            the inner div owns the drop animation, so its transform can't clobber the
+            centering (that bug made the pin land right of its true value). */}
         {revealed && (
           <div
-            className="pointer-events-none absolute -top-9 z-20 flex -translate-x-1/2 flex-col items-center animate-pin-drop"
+            className="pointer-events-none absolute -top-9 z-20 -translate-x-1/2"
             style={{ left: `${truthFrac * 100}%` }}
           >
-            <span className="mb-1 whitespace-nowrap rounded-md bg-truth px-1.5 py-0.5 text-[11px] font-bold text-bg nums">
-              {formatNumber(truth!)}
-            </span>
-            <span className="h-3 w-3 rounded-full bg-truth ring-4 ring-truth/25" />
+            <div className="flex flex-col items-center animate-pin-drop">
+              <span className="mb-1 whitespace-nowrap rounded-md bg-truth px-1.5 py-0.5 text-[11px] font-bold text-bg nums">
+                {formatNumber(truth!)}
+              </span>
+              <span className="h-3 w-3 rounded-full bg-truth ring-4 ring-truth/25" />
+            </div>
           </div>
         )}
 
